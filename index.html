@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Study: Mendesain Ulang Akses Ruang Publik Depok</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <style>
+        /* FONT IMPORTS */
+        @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
+
+        /* BASIC SETUP */
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            padding: 20px 0;
+        }
+
+        .flipbook-container {
+            margin: 20px 0;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        #flipbook {
+            width: 900px;
+            height: 600px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin: 0 auto;
+            position: relative;
+            background: white;
+            border-radius: 8px;
+        }
+
+        /* PAGE STYLING */
+        .page {
+            background-color: white;
+            padding: 30px 35px; /* Increased padding */
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .page.active { display: flex; }
+        
+        .page { opacity: 0; transform: translateY(20px); transition: all 0.4s ease-out; }
+        .page.active { opacity: 1; transform: translateY(0); }
+
+        /* SHOWCASE COVER STYLES */
+        .showcase-cover { padding: 0; background-color: #EAE8DE; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        .showcase-cover::before, .showcase-cover::after { content: ''; position: absolute; background-color: #83846F; z-index: 0; }
+        .showcase-cover::before { width: 1200px; height: 1200px; border-radius: 50%; top: 55%; left: -800px; }
+        .showcase-cover::after { width: 1200px; height: 1200px; border-radius: 50%; top: -850px; right: -600px; }
+        .cover-content { position: relative; z-index: 2; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 40px 0; box-sizing: border-box; }
+        .cover-text-block { text-align: center; margin-top: 20px; }
+        .cover-brand { display: inline-block; background-color: #83846F; color: white; padding: 8px 25px; border-radius: 25px; font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: 700; }
+        .cover-tagline { font-family: 'Dancing Script', cursive; font-size: 54px; color: #383838; margin-top: 5px; }
+        .cover-images { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 1; }
+        .img-container { position: absolute; background-size: cover; background-position: center; border-radius: 200px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.15); border: 7px solid white; }
+        .img-1 { width: 48%; height: 33%; top: 25%; left: 50%; transform: translateX(-50%); }
+        .img-2 { width: 58%; height: 33%; bottom: 15%; left: 50%; transform: translateX(-50%); }
+        .img-3 { width: 200px; height: 200px; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; }
+        .cover-footer { font-size: 14px; color: #555; letter-spacing: 1px; font-family: 'Poppins', sans-serif; }
+        
+        /* GENERAL CONTENT STYLES */
+        .page h1 { font-family: 'Poppins', sans-serif; color: #2E7D32; font-size: 32px; border-bottom: 3px solid #AED581; padding-bottom: 10px; margin-top: 0; margin-bottom: 20px; }
+        .page h2 { font-family: 'Poppins', sans-serif; color: #4CAF50; font-size: 22px; margin-top: 15px; margin-bottom: 10px; }
+        .page p, .page li { font-size: 15px; line-height: 1.8; /* Increased line-height */ margin-bottom: 12px; }
+        .page strong { color: #2E7D32; font-weight: 700; }
+        .page ul { padding-left: 25px; list-style-type: '🌿'; padding-inline-start: 2ch;}
+        .page ol { padding-left: 25px;}
+        .page li { margin-bottom: 8px;}
+        .page img { max-width: 100%; height: auto; border-radius: 8px; margin-top: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        blockquote { border-left: 4px solid #AED581; padding-left: 20px; margin: 20px 0; font-style: italic; color: #555; font-size: 16px; }
+        .two-column { display: flex; gap: 30px; align-items: flex-start; }
+        .two-column > div { flex: 1; }
+
+        /* NAVIGATION */
+        .navigation { margin-top: 15px; text-align: center; }
+        .navigation button { background-color: #4CAF50; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 5px; cursor: pointer; margin: 0 10px; transition: background-color 0.3s; }
+        .navigation button:hover:not(:disabled) { background-color: #2E7D32; }
+        .navigation button:disabled { background-color: #9E9E9E; cursor: not-allowed; }
+        .page-indicator { text-align: center; margin-top: 10px; color: #666; font-size: 14px; }
+        
+        /* RESPONSIVE OVERRIDES */
+        @media (max-width: 1000px) { #flipbook { width: 700px; height: 500px; } .cover-tagline { font-size: 44px; } .img-3 { width: 160px; height: 160px; } }
+        @media (max-width: 768px) { #flipbook { width: 500px; height: 350px; } .page { padding: 20px;} .page h1 { font-size: 24px; } .page h2 { font-size: 18px; } .page p, .page li { font-size: 13px; } .cover-brand { font-size: 18px; } .cover-tagline { font-size: 32px; } .img-3 { width: 120px; height: 120px; border-width: 5px; } .img-1, .img-2 { height: 35%; } }
+        @media (max-width: 550px) { #flipbook { width: 350px; height: 250px; } .page h1 { font-size: 20px; } .page h2 { font-size: 16px; } .page p, .page li { font-size: 12px; } .two-column { flex-direction: column; } .cover-brand { font-size: 14px; } .cover-tagline { font-size: 24px; } .img-3 { width: 80px; height: 80px; } .cover-footer { font-size: 10px; } }
+    </style>
+</head>
+<body>
+
+    <div class="flipbook-container">
+        <div id="flipbook">
+            <!-- HALAMAN 1: NEW SHOWCASE COVER -->
+            <div class="page showcase-cover active" data-page="1">
+                <div class="cover-images">
+                    <div class="img-container img-1" style="background-image: url('https://picsum.photos/seed/cover_top/800/600');"></div>
+                    <div class="img-container img-2" style="background-image: url('https://picsum.photos/seed/cover_bottom/800/600');"></div>
+                    <div class="img-container img-3" style="background-image: url('https://picsum.photos/seed/cover_middle/300/300');"></div>
+                </div>
+                <div class="cover-content">
+                    <div class="cover-text-block">
+                        <div class="cover-brand">Taman Kita</div>
+                        <div class="cover-tagline">Showcase Proyek UI/UX</div>
+                    </div>
+                    <div class="cover-footer">
+                        [Nama Anda] | [Portfolio Anda]
+                    </div>
+                </div>
+            </div>
+
+            <!-- HALAMAN 2: THE "WHY" - INTRO -->
+            <div class="page" data-page="2">
+                <h1>The "Why": Understanding The People</h1>
+                <h2>The Unseen Barriers to Urban Green Spaces.</h2>
+                <p>Di tengah hiruk pikuk kota Depok, Ruang Terbuka Hijau (RTH) seharusnya menjadi oase—tempat warga beristirahat, berolahraga, dan bersosialisasi. Namun, kenyataannya jauh dari ideal. Potensi besar ini terhambat oleh masalah yang tidak terlihat di permukaan: <strong>kesenjangan informasi yang masif.</strong></p>
+                <p>Proyek ini diawali dengan sebuah pertanyaan fundamental: Mengapa taman-taman ini sepi? Untuk menjawabnya, saya mengadopsi metodologi <strong>Design Thinking</strong>, sebuah pendekatan yang menempatkan manusia sebagai pusat dari proses desain, untuk menggali akar masalah dan membangun solusi yang benar-benar relevan dan bermanfaat.</p>
+            </div>
+
+            <!-- HALAMAN 3: THE "WHY" - PERSONAS -->
+            <div class="page" data-page="3">
+                <h1>The "Why": Understanding The People</h1>
+                <h2>Crafting User Archetypes from Real Conversations</h2>
+                <p>Setelah wawancara mendalam dengan berbagai warga, saya mensintesis temuan menjadi dua arketipe pengguna utama. Mereka bukan sekadar profil fiktif, melainkan representasi dari tujuan, motivasi, dan frustrasi nyata yang ada di masyarakat.</p>
+                <div class="two-column">
+                    <div>
+                        <h3>Obidzar, The Casual Seeker</h3>
+                        <blockquote>"Aku butuh udara segar, tapi malas kalau ujung-ujungnya tamannya gitu-gitu aja."</blockquote>
+                        <p>Obidzar mewakili segmen mayoritas: pekerja yang sibuk dan mendambakan rekreasi berkualitas. Baginya, waktu sangat berharga, dan ia tidak mau mengambil risiko mengunjungi taman yang tidak terawat atau tidak sesuai ekspektasi.</p>
+                        <ul>
+                            <li><strong>Goal:</strong> Menemukan tempat rekreasi yang pasti, bersih, dan mudah dijangkau.</li>
+                            <li><strong>Frustration:</strong> Informasi online tidak bisa dipercaya; sering kecewa dengan kondisi taman.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Luqmannul, The Active Contributor</h3>
+                        <blockquote>"Sayang banget, banyak RTH bagus tapi nggak terawat. Aku mau lapor, tapi nggak tahu ke mana."</blockquote>
+                        <p>Luqmannul adalah suara komunitas yang peduli. Ia melihat RTH sebagai aset bersama yang harus dijaga. Ia proaktif dan ingin berkontribusi, namun terhalang oleh birokrasi dan ketiadaan platform yang efektif.</p>
+                         <ul>
+                            <li><strong>Goal:</strong> Berkontribusi menjaga kualitas RTH dan mencari informasi detail untuk kegiatan komunitas.</li>
+                            <li><strong>Frustration:</strong> Tidak ada cara mudah untuk melaporkan kerusakan atau memberi masukan.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- HALAMAN 4: THE "WHY" - JOURNEY MAP -->
+            <div class="page" data-page="4">
+                <h1>The "Why": Understanding The People</h1>
+                <h2>Mapping the Cycle of Disappointment</h2>
+                <p>Dengan <strong>User Journey Map</strong>, saya membedah pengalaman pengguna dari awal hingga akhir. Proses ini mengungkap titik-titik kritis di mana antusiasme pengguna berubah menjadi frustrasi. Ini bukan sekadar peta, melainkan visualisasi dari "siklus kekecewaan" yang harus kita putus.</p>
+                <h2>Key Pain Points Uncovered:</h2>
+                <ul>
+                    <li><strong>Tahap Pencarian (Search):</strong> Pengguna mengandalkan informasi Google yang seringkali tidak lengkap atau usang, menyebabkan ketidakpastian.</li>
+                    <li><strong>Tahap Evaluasi (Evaluate):</strong> Ketiadaan foto terbaru dan ulasan pengguna membuat sulit untuk menilai kondisi taman sebelum berkunjung.</li>
+                    <li><strong>Tahap Kunjungan (Activity):</strong> Kekecewaan memuncak saat menemukan fasilitas yang rusak, kotor, atau tidak sesuai dengan informasi yang didapat.</li>
+                    <li><strong>Tahap Pasca-Kunjungan (Post-Use):</strong> Tidak ada saluran yang jelas untuk menyuarakan keluhan atau apresiasi, membuat pengguna merasa tidak didengar dan enggan kembali.</li>
+                </ul>
+            </div>
+
+            <!-- HALAMAN 5: THE CHALLENGE -->
+            <div class="page" data-page="5">
+                <h1>The Challenge: Defining Our Mission</h1>
+                <h2>From Broad Problems to a Sharp Focus</h2>
+                <p>Setelah memahami "mengapa", langkah selanjutnya adalah mendefinisikan "apa". Fase ini adalah tentang menerjemahkan lautan data kualitatif menjadi sebuah pernyataan masalah yang solid dan pertanyaan-pertanyaan strategis yang akan memandu proses ideasi.</p>
+                <h2>Problem Statement</h2>
+                <blockquote>Warga urban di Depok yang ingin memanfaatkan Ruang Terbuka Hijau <strong>kesulitan mengakses informasi yang terpusat, akurat, dan real-time</strong>. Kesenjangan informasi ini, ditambah dengan <strong>tidak adanya mekanisme partisipasi yang mudah</strong> untuk reservasi dan pelaporan, menciptakan siklus ketidakpercayaan dan apati yang menyebabkan RTH kurang terawat dan tidak termanfaatkan secara optimal.</blockquote>
+                
+                <h2>Framing the Opportunity (How Might We):</h2>
+                 <ul>
+                    <li><strong>How Might We</strong> mengubah pencarian RTH dari tugas yang melelahkan menjadi sebuah pengalaman eksplorasi yang menyenangkan?</li>
+                    <li><strong>How Might We</strong> memberdayakan komunitas untuk "memiliki" ruang publik dengan memfasilitasi kegiatan mereka secara transparan?</li>
+                    <li><strong>How Might We</strong> membangun jembatan komunikasi dua arah antara warga dan pengelola taman untuk menciptakan siklus perbaikan yang berkelanjutan?</li>
+                </ul>
+            </div>
+
+            <!-- HALAMAN 6: THE "HOW" - THE SOLUTION -->
+            <div class="page" data-page="6">
+                <h1>The "How": Crafting The Solution</h1>
+                <h2>Introducing "Taman Kita": A Three-Pillar Approach</h2>
+                <p>Menjawab pertanyaan HMW, lahirnya konsep "Taman Kita"—sebuah ekosistem digital yang dirancang tidak hanya sebagai aplikasi, tetapi sebagai gerakan. Solusi ini berdiri di atas tiga pilar fundamental yang secara langsung mengatasi pain points pengguna:</p>
+                <ol>
+                    <li><strong>Discover: A Living Directory of Green Spaces.</strong>
+                    <br>Pilar ini mengatasi masalah ketidakpastian informasi. Kami menyediakan peta interaktif, galeri foto terbaru, daftar fasilitas yang terverifikasi, dan ulasan dari pengguna lain. Ini mengubah pencarian taman menjadi sebuah penemuan yang inspiratif.</li>
+                    <li><strong>Organize: Frictionless Event & Facility Booking.</strong>
+                    <br>Untuk Luqmannul dan komunitasnya, pilar ini menghilangkan hambatan birokrasi. Pengguna dapat dengan mudah melihat ketersediaan, memesan area piknik atau lapangan olahraga, dan mendaftarkan acara komunitas, semuanya dalam beberapa ketukan.</li>
+                    <li><strong>Participate: Empowering Citizens as Park Guardians.</strong>
+                    <br>Ini adalah pilar yang paling transformatif. Dengan fitur pelaporan yang intuitif (lengkap dengan foto dan geotag) serta sistem rating, setiap warga menjadi "penjaga taman". Ini menciptakan rasa kepemilikan dan memberikan data berharga bagi pengelola.</li>
+                </ol>
+            </div>
+
+            <!-- HALAMAN 7: THE "HOW" - BLUEPRINT TO REALITY -->
+            <div class="page" data-page="7">
+                <h1>The "How": Crafting The Solution</h1>
+                <h2>From Blueprint to a Tangible Experience</h2>
+                <p>Proses visualisasi dimulai dengan wireframe low-fidelity untuk memetakan arsitektur informasi dan alur pengguna tanpa distraksi visual. Setelah alur terbukti solid, saya beralih ke desain high-fidelity dengan filosofi yang jelas:</p>
+                <ul>
+                    <li><strong>Clarity Above All:</strong> Antarmuka harus bersih, tidak berantakan, dan langsung ke intinya.</li>
+                    <li><strong>Calm & Inviting:</strong> Palet warna hijau dan krem dipilih untuk menciptakan nuansa alam yang menenangkan dan mudah di mata.</li>
+                    <li><strong>Intuitive Interaction:</strong> Setiap elemen interaktif dirancang untuk mengikuti pola pikir pengguna, memastikan pengalaman yang mulus dan tanpa friksi.</li>
+                </ul>
+                <img src="https://picsum.photos/seed/designs/800/400" alt="Wireframe and High-Fidelity Comparison">
+            </div>
+
+            <!-- HALAMAN 8: THE PROOF - VALIDATION -->
+            <div class="page" data-page="8">
+                <h1>The Proof: Validating Assumptions with Real Users</h1>
+                <h2>Does It Actually Work? The Moment of Truth.</h2>
+                <p>Sebuah desain, secantik apa pun, tidak ada artinya jika tidak bisa digunakan. Untuk memvalidasi solusi, saya melakukan <strong>remote unmoderated usability testing</strong> menggunakan prototipe Figma yang diintegrasikan dengan Maze. Tujuh partisipan yang sesuai dengan persona diberi tiga skenario tugas kritis:</p>
+                <ol>
+                    <li>Menemukan detail spesifik sebuah taman.</li>
+                    <li>Mendaftar untuk sebuah acara yang diadakan di taman.</li>
+                    <li>Melaporkan sebuah fasilitas yang rusak.</li>
+                </ol>
+                <p><strong>Hasilnya luar biasa sekaligus membuka mata.</strong></p>
+                <img src="https://picsum.photos/seed/results/800/250" alt="Hasil Testing Maze">
+            </div>
+            
+            <!-- HALAMAN 9: THE PROOF - ITERATION -->
+            <div class="page" data-page="9">
+                <h1>The Proof: Validating Assumptions with Real Users</h1>
+                <h2>From Insight to Actionable Iteration</h2>
+                <p>Data dari usability testing memberikan dua pelajaran penting:</p>
+                <p><strong>The Big Win: 100% Task Success Rate!</strong> Ini adalah validasi kuat bahwa alur navigasi inti dan arsitektur informasi kami sudah intuitif dan mudah dipahami. Pengguna tidak tersesat saat menjalankan tugas-tugas utama.</p>
+                <p><strong>The Crucial Insight: A 46.4% Misclick Rate.</strong> Data ini adalah "harta karun". Hampir separuh klik saat mencari taman meleset. Pengguna secara naluriah mencoba mengetuk seluruh area kartu (gambar dan teks), bukan hanya tombol "Lihat Detail". Ini adalah kesenjangan antara desain kami dan model mental pengguna.</p>
+                <blockquote>Ini adalah contoh sempurna mengapa kita tidak bisa berasumsi. Data menunjukkan dengan jelas bahwa kebiasaan pengguna lebih kuat daripada petunjuk visual yang kami berikan.</blockquote>
+                <p><strong>The Fix:</strong> Iterasi yang dilakukan sangat jelas. Kami memperbesar area target klik untuk mencakup seluruh komponen kartu, selaras dengan prinsip Fitts's Law dan pola desain modern. Perubahan kecil ini secara dramatis meningkatkan usabilitas dan mengurangi friksi.</p>
+            </div>
+
+            <!-- HALAMAN 10: THE FUTURE -->
+            <div class="page" data-page="10">
+                <h1>The Future: Impact & The Road Ahead</h1>
+                <h2>Beyond a Project: A Vision for Connected Cities</h2>
+                <p>"Taman Kita Depok" dirancang sebagai sebuah produk yang scalable dan berkelanjutan. Dampaknya melampaui kenyamanan pengguna; ini adalah tentang menciptakan kota yang lebih baik melalui teknologi.</p>
+                <h2>Potential for Real-World Impact:</h2>
+                <ul>
+                    <li><strong>Bagi Warga:</strong> Mengembalikan kepercayaan dan kebanggaan terhadap ruang publik.</li>
+                    <li><strong>Bagi Komunitas:</strong> Menjadi katalisator untuk lebih banyak kegiatan sosial, budaya, dan olahraga.</li>
+                    <li><strong>Bagi Pemerintah Kota:</strong> Menyediakan dasbor analitik berbasis data untuk pengambilan keputusan yang lebih baik dalam alokasi anggaran pemeliharaan dan pengembangan RTH.</li>
+                </ul>
+                <h2>What's Next? (The Roadmap)</h2>
+                <ul>
+                    <li><strong>Phase 1 (MVP Launch):</strong> Mengembangkan fungsi inti (Discover & Participate) dan meluncurkannya di 3-5 RTH percontohan untuk mengumpulkan data awal.</li>
+                    <li><strong>Phase 2 (Community Growth):</strong> Memperkenalkan fitur "Organize" (booking) dan membangun kemitraan strategis dengan komunitas lokal untuk mendorong adopsi.</li>
+                    <li><strong>Phase 3 (Expansion & Monetization):</strong> Bekerja sama dengan lebih banyak kota dan menjajaki model bisnis yang berkelanjutan (misal: promosi acara premium, kemitraan dengan UMKM lokal).</li>
+                </ul>
+            </div>
+
+            <!-- HALAMAN 11: PENUTUP -->
+            <div class="page" data-page="11">
+                <div style="text-align: center; margin: auto;">
+                    <h1>Project Learnings & Thank You</h1>
+                    <p>Proyek ini adalah perjalanan yang luar biasa dalam menerapkan proses Design Thinking dari awal hingga akhir. Beberapa pelajaran kunci yang saya dapatkan:</p>
+                    <ul>
+                        <li><strong>Fall in Love with the Problem:</strong> Memahami masalah pengguna secara mendalam adalah fondasi dari solusi yang hebat.</li>
+                        <li><strong>Data is Your Best Friend:</strong> Satu metrik sederhana seperti 'misclick rate' bisa memberikan wawasan yang lebih berharga daripada puluhan opini.</li>
+                        <li><strong>Iteration is Progress:</strong> Tidak ada desain yang sempurna pada percobaan pertama. Kemauan untuk mendengar, belajar, dan merevisi adalah kunci kesuksesan.</li>
+                    </ul>
+                    <p style="margin-top: 30px;"><strong>Terima kasih telah menyimak case study ini. Mari terhubung!</strong><br>[Email Anda] | [Link LinkedIn/Portfolio Anda]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-indicator">
+        <span id="current-page">1</span> / <span id="total-pages">11</span>
+    </div>
+
+    <div class="navigation">
+        <button id="prev-btn">Sebelumnya</button>
+        <button id="next-btn">Berikutnya</button>
+    </div>
+
+<script type="text/javascript">
+    let currentPage = 1;
+    const totalPages = 11;
+
+    function showPage(pageNumber) {
+        $('.page').removeClass('active');
+        $(`.page[data-page="${pageNumber}"]`).addClass('active');
+        currentPage = pageNumber;
+        updateNavigation();
+        $('#current-page').text(pageNumber);
+    }
+
+    function updateNavigation() {
+        $('#prev-btn').prop('disabled', currentPage === 1);
+        $('#next-btn').prop('disabled', currentPage === totalPages);
+    }
+
+    function previousPage() {
+        if (currentPage > 1) { showPage(currentPage - 1); }
+    }
+
+    function nextPage() {
+        if (currentPage < totalPages) { showPage(currentPage + 1); }
+    }
+
+    $(document).ready(function() {
+        $('#total-pages').text(totalPages);
+        showPage(1);
+        
+        $('#prev-btn').click(previousPage);
+        $('#next-btn').click(nextPage);
+
+        $(document).keydown(function(e) {
+            if (e.key === 'ArrowLeft') { previousPage(); } 
+            else if (e.key === 'ArrowRight') { nextPage(); }
+        });
+
+        let startX = 0;
+        $('#flipbook').on('touchstart', function(e) {
+            startX = e.originalEvent.touches[0].clientX;
+        });
+
+        $('#flipbook').on('touchend', function(e) {
+            let endX = e.originalEvent.changedTouches[0].clientX;
+            const diff = startX - endX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) { nextPage(); } 
+                else { previousPage(); }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
